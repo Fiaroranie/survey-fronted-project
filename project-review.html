@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Survey Frontend Project Documentation</title>
+    <style>
+      :root {
+        --bg: #eef3f8;
+        --panel: #ffffff;
+        --panel-soft: #f6f9fc;
+        --text: #17202a;
+        --muted: #617083;
+        --border: #d8e1ea;
+        --accent: #236f61;
+        --accent-2: #2d7ff9;
+        --code-bg: #101827;
+        --code-text: #e8eef7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+        color: var(--text);
+        background:
+          linear-gradient(180deg, #e8f1f7 0, #f7fafc 360px),
+          var(--bg);
+        line-height: 1.65;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 30px 0 60px;
+      }
+
+      header {
+        padding: 34px;
+        border-radius: 14px;
+        color: #fff;
+        background:
+          linear-gradient(120deg, rgba(16, 42, 55, 0.94), rgba(35, 111, 97, 0.82)),
+          #102a37;
+        box-shadow: 0 22px 52px rgba(18, 38, 55, 0.18);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 36px;
+        line-height: 1.18;
+      }
+
+      h2 {
+        margin-bottom: 14px;
+        font-size: 23px;
+        line-height: 1.3;
+      }
+
+      h3 {
+        margin-bottom: 8px;
+        font-size: 17px;
+      }
+
+      .subtitle {
+        max-width: 840px;
+        margin-top: 12px;
+        color: #d5e4ee;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 5px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #eef7fb;
+        font-size: 14px;
+      }
+
+      main {
+        display: grid;
+        gap: 18px;
+        margin-top: 20px;
+      }
+
+      section {
+        padding: 24px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--panel);
+        box-shadow: 0 14px 34px rgba(21, 35, 55, 0.06);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        padding: 16px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--panel-soft);
+      }
+
+      .card strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #17202a;
+      }
+
+      .card p {
+        color: var(--muted);
+      }
+
+      ul {
+        margin: 10px 0 0;
+        padding-left: 22px;
+      }
+
+      li {
+        margin: 6px 0;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: #e9eef5;
+        color: #111827;
+        font-family: Consolas, "SFMono-Regular", monospace;
+        font-size: 0.94em;
+      }
+
+      pre {
+        overflow: auto;
+        margin: 12px 0 0;
+        padding: 16px;
+        border-radius: 10px;
+        background: var(--code-bg);
+        color: var(--code-text);
+        font-family: Consolas, "SFMono-Regular", monospace;
+        font-size: 13.5px;
+        line-height: 1.55;
+      }
+
+      pre code {
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        color: inherit;
+      }
+
+      .table {
+        overflow: auto;
+        margin-top: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+      }
+
+      th,
+      td {
+        padding: 11px 12px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #f2f6fa;
+        color: #25364d;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .note {
+        margin-top: 12px;
+        padding: 12px 14px;
+        border-left: 4px solid var(--accent);
+        border-radius: 8px;
+        background: #edf8f4;
+        color: #1f6457;
+      }
+
+      .code-title {
+        display: inline-flex;
+        margin-top: 16px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: #e8f4ef;
+        color: #1f6457;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      @media (max-width: 860px) {
+        h1 {
+          font-size: 29px;
+        }
+
+        .grid,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+
+        header,
+        section {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <h1>Survey Frontend 项目结构与关键代码说明</h1>
+        <p class="subtitle">
+          这份 HTML 文档用于快速理解当前问卷项目：前端 Vue 表单如何组织，数据结构在哪里定义，提交接口如何调用，后端如何写入 PostgreSQL。
+        </p>
+        <div class="meta">
+          <span class="badge">项目：survey-frontend</span>
+          <span class="badge">前端：Vue 3 + Vite</span>
+          <span class="badge">后端：Express + PostgreSQL</span>
+          <span class="badge">入口：src/App.vue</span>
+        </div>
+      </header>
+
+      <main>
+        <section>
+          <h2>1. 项目总览</h2>
+          <div class="grid">
+            <div class="card">
+              <strong>前端职责</strong>
+              <p>展示问卷、维护表单状态、做基础校验、调用提交接口。</p>
+            </div>
+            <div class="card">
+              <strong>后端职责</strong>
+              <p>接收问卷 JSON，在事务中写入多张 PostgreSQL 表。</p>
+            </div>
+            <div class="card">
+              <strong>核心数据结构</strong>
+              <p><code>createSurveyForm()</code> 定义完整 form shape，各 section 组件直接绑定对应分段。</p>
+            </div>
+            <div class="card">
+              <strong>配置方式</strong>
+              <p>API 地址和数据库连接走环境变量，模板在 <code>.env.example</code>。</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>2. 详细项目结构</h2>
+          <pre><code>survey-frontend/
+|-- .env.example                 # 环境变量示例，复制为 .env 后填写真实配置
+|-- .gitignore                   # 忽略 node_modules、dist、.env、日志等文件
+|-- index.html                   # Vite HTML 入口
+|-- package.json                 # npm scripts 和依赖声明
+|-- package-lock.json            # 锁定依赖版本
+|-- project-review.html          # 当前这份项目说明 HTML
+|-- README.md                    # 项目运行说明
+|-- server.js                    # Express API + PostgreSQL 写入逻辑
+|-- vite.config.js               # Vite 配置
+|-- public/
+|   |-- favicon.svg              # 站点图标
+|   |-- icons.svg                # 公共 SVG 资源
+|-- src/
+|   |-- App.vue                  # 主页面：表单组合、校验、提交、页面样式
+|   |-- main.js                  # Vue createApp 入口
+|   |-- style.css                # 全局基础样式
+|   |-- api/
+|   |   |-- surveyApi.js         # submitSurvey API 封装
+|   |-- assets/
+|   |   |-- hero.png             # 顶部背景图
+|   |   |-- vite.svg
+|   |   |-- vue.svg
+|   |-- components/
+|   |   |-- survey/
+|   |       |-- BasicInfoSection.vue
+|   |       |-- SectionAProfile.vue
+|   |       |-- SectionBSocioeconomic.vue
+|   |       |-- SectionCEnvironment.vue
+|   |       |-- SectionDElephantPresence.vue
+|   |       |-- SectionEConflict.vue
+|   |       |-- SectionFPerceptions.vue
+|   |       |-- SectionGDevelopment.vue
+|   |       |-- SectionHCommunity.vue
+|   |       |-- SectionJOpenEnded.vue
+|   |-- data/
+|   |   |-- surveyOptions.js     # 下拉、单选、多选、Likert 选项
+|   |-- utils/
+|       |-- createSurveyForm.js  # 初始化完整问卷对象</code></pre>
+        </section>
+
+        <section>
+          <h2>3. 目录职责说明</h2>
+          <div class="table">
+            <table>
+              <thead>
+                <tr>
+                  <th>路径</th>
+                  <th>职责</th>
+                  <th>修改时机</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>src/App.vue</code></td>
+                  <td>组合所有章节组件，维护整体表单对象，执行校验和提交。</td>
+                  <td>改页面布局、校验规则、提交流程、整体样式。</td>
+                </tr>
+                <tr>
+                  <td><code>src/components/survey/*</code></td>
+                  <td>每个问卷章节的具体输入控件。</td>
+                  <td>新增题目、改题目展示、调整条件题。</td>
+                </tr>
+                <tr>
+                  <td><code>src/utils/createSurveyForm.js</code></td>
+                  <td>定义初始 form JSON 结构。</td>
+                  <td>新增字段、删除字段、调整默认值。</td>
+                </tr>
+                <tr>
+                  <td><code>src/data/surveyOptions.js</code></td>
+                  <td>集中保存选项列表。</td>
+                  <td>改下拉框、单选、多选、Likert 文案。</td>
+                </tr>
+                <tr>
+                  <td><code>src/api/surveyApi.js</code></td>
+                  <td>封装前端到后端的提交请求。</td>
+                  <td>改 API 地址、请求头、错误处理。</td>
+                </tr>
+                <tr>
+                  <td><code>server.js</code></td>
+                  <td>Express 路由、数据库连接、SQL 插入事务。</td>
+                  <td>改数据库字段映射、后端校验、接口路径。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2>4. 关键代码块</h2>
+
+          <span class="code-title">4.1 App.vue - 表单状态与提交入口</span>
+          <pre><code>const form = reactive(createSurveyForm());
+const isSubmitting = ref(false);
+
+async function handleSubmit() {
+  if (validationErrors.value.length &gt; 0) {
+    alert(`Please complete required fields:\n\n${validationErrors.value.join("\n")}`);
+    return;
+  }
+
+  if (isSubmitting.value) return;
+  isSubmitting.value = true;
+
+  try {
+    const result = await submitSurvey(form);
+    alert(`Questionnaire saved successfully: ${result.survey_id}`);
+  } catch (err) {
+    console.error(err);
+    alert(`Failed to save questionnaire: ${err.message}`);
+  } finally {
+    isSubmitting.value = false;
+  }
+}</code></pre>
+
+          <span class="code-title">4.2 App.vue - 页面组合方式</span>
+          <pre><code>&lt;BasicInfoSection v-model="form.basic" /&gt;
+&lt;SectionAProfile v-model="form.section_a" /&gt;
+&lt;SectionBSocioeconomic v-model="form.section_b" /&gt;
+&lt;SectionCEnvironment v-model="form.section_c" /&gt;
+&lt;SectionDElephantPresence v-model="form.section_d" /&gt;
+&lt;SectionEConflict v-model="form.section_e" /&gt;
+&lt;SectionFPerceptions v-model="form.section_f" /&gt;
+&lt;SectionGDevelopment v-model="form.section_g" /&gt;
+&lt;SectionHCommunity v-model="form.section_h" /&gt;
+&lt;SectionJOpenEnded v-model="form.section_j" /&gt;</code></pre>
+
+          <span class="code-title">4.3 App.vue - 顶部背景图</span>
+          <pre><code>import heroImage from "./assets/hero.png";
+
+&lt;header
+  class="survey-header"
+  :style="{ backgroundImage: `linear-gradient(90deg, rgba(12, 31, 45, 0.88), rgba(12, 31, 45, 0.58)), url(${heroImage})` }"
+&gt;</code></pre>
+
+          <span class="code-title">4.4 createSurveyForm.js - 表单结构示例</span>
+          <pre><code>export function createSurveyForm() {
+  return {
+    basic: {
+      survey_id: "",
+      survey_date: "",
+      enumerator_name: "",
+      village_name: "",
+      district: "",
+      longitude: null,
+      latitude: null,
+      respondent_code: ""
+    },
+    section_a: {
+      gender: "",
+      age: null,
+      marital_status: "",
+      education_level: "",
+      occupation_main: "",
+      occupation_other: "",
+      household_size: null,
+      income_earners: null
+    }
+  };
+}</code></pre>
+
+          <span class="code-title">4.5 surveyApi.js - 前端提交 API</span>
+          <pre><code>const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+export async function submitSurvey(form) {
+  const response = await fetch(`${API_BASE_URL}/api/surveys`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(form)
+  });
+
+  const contentType = response.headers.get("content-type") || "";
+  const result = contentType.includes("application/json")
+    ? await response.json()
+    : { message: await response.text() };
+
+  if (!response.ok) {
+    throw new Error(result.message || "Failed to submit survey");
+  }
+
+  return result;
+}</code></pre>
+
+          <span class="code-title">4.6 server.js - 数据库连接</span>
+          <pre><code>import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import pg from "pg";
+
+const { Pool } = pg;
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+
+const pool = new Pool({
+  host: process.env.PGHOST || "localhost",
+  port: Number(process.env.PGPORT || 5432),
+  user: process.env.PGUSER || "postgres",
+  password: process.env.PGPASSWORD,
+  database: process.env.PGDATABASE || "Asian_elephant"
+});</code></pre>
+
+          <span class="code-title">4.7 server.js - 提交流程骨架</span>
+          <pre><code>app.post("/api/surveys", async (req, res) =&gt; {
+  const client = await pool.connect();
+
+  try {
+    const { basic = {}, section_a = {}, section_b = {} } = req.body;
+
+    if (!basic.survey_id || !basic.survey_date) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required survey information"
+      });
+    }
+
+    await client.query("BEGIN");
+    // Multiple INSERT statements go here.
+    await client.query("COMMIT");
+
+    res.json({
+      success: true,
+      message: "Survey saved successfully",
+      survey_id: basic.survey_id
+    });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    res.status(500).json({
+      success: false,
+      message: "Failed to save survey",
+      error: err.message
+    });
+  } finally {
+    client.release();
+  }
+});</code></pre>
+
+          <span class="code-title">4.8 章节组件 - v-model 模式</span>
+          <pre><code>&lt;script setup&gt;
+const model = defineModel();
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;section&gt;
+    &lt;label&gt;Survey ID&lt;/label&gt;
+    &lt;input v-model.trim="model.survey_id" required /&gt;
+  &lt;/section&gt;
+&lt;/template&gt;</code></pre>
+        </section>
+
+        <section>
+          <h2>5. 数据流说明</h2>
+          <pre><code>用户填写表单
+  -&gt; 各章节组件通过 v-model 写入 form.section_x
+  -&gt; App.vue 的 validationErrors 检查必填和范围
+  -&gt; submitSurvey(form) 发送 POST /api/surveys
+  -&gt; server.js 解构 basic / section_a / section_b ...
+  -&gt; PostgreSQL transaction: BEGIN
+  -&gt; 多张表 INSERT
+  -&gt; COMMIT 成功，或 ROLLBACK 回滚
+  -&gt; 前端弹出成功/失败提示</code></pre>
+        </section>
+
+        <section>
+          <h2>6. 环境变量与运行命令</h2>
+          <div class="grid">
+            <div class="card">
+              <strong>.env.example</strong>
+              <pre><code>VITE_API_BASE_URL=http://localhost:3000
+
+PORT=3000
+PGHOST=localhost
+PGPORT=5432
+PGUSER=postgres
+PGPASSWORD=change-me
+PGDATABASE=Asian_elephant</code></pre>
+            </div>
+            <div class="card">
+              <strong>package.json scripts</strong>
+              <pre><code>{
+  "dev": "vite",
+  "server": "node server.js",
+  "build": "vite build",
+  "preview": "vite preview"
+}</code></pre>
+            </div>
+          </div>
+          <p class="note">
+            本地启动建议开两个终端：一个运行 <code>npm run server</code>，另一个运行 <code>npm run dev</code>。
+          </p>
+        </section>
+
+        <section>
+          <h2>7. 重要修改记录</h2>
+          <div class="grid-3">
+            <div class="card">
+              <strong>安全配置</strong>
+              <p>数据库密码从源码移到 <code>.env</code>，并将 <code>.env</code> 加入 <code>.gitignore</code>。</p>
+            </div>
+            <div class="card">
+              <strong>表单体验</strong>
+              <p>增加提交状态、错误提示、主要章节校验、条件题清空逻辑。</p>
+            </div>
+            <div class="card">
+              <strong>视觉样式</strong>
+              <p>增加顶部背景图、section 卡片、章节编号、输入框 focus 状态和响应式布局。</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>8. 后续可继续优化</h2>
+          <ul>
+            <li>把 <code>server.js</code> 拆成 <code>db.js</code>、<code>validators.js</code>、<code>surveyRepository.js</code>。</li>
+            <li>后端补更严格的字段校验，例如 Likert 只能是 1 到 5，经纬度必须在合法范围。</li>
+            <li>给提交成功后的交互加确认状态，例如保存后重置表单或自动生成下一份 Survey ID。</li>
+            <li>如果后续做 AI 填表，建议新增后端接口，不要在浏览器暴露 API Key。</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
