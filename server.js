@@ -66,7 +66,9 @@ app.get("/api/health", async (req, res) => {
       success: false,
       service: "survey-api",
       database: "unavailable",
-      error: err.message
+      error: err.message,
+      code: err.code,
+      detail: err.detail
     });
   }
 });
