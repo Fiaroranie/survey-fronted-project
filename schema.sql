@@ -2,8 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict hUjsPlyjZFarwoErOdAf604DPbGROp6EiG4YZzdjg3Z0GnXA4gvRPWSZjTaZyOE
-
 -- Dumped from database version 18.4
 -- Dumped by pg_dump version 18.4
 
@@ -26,7 +24,7 @@ SET row_security = off;
 -- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
 --
 
-CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
+-- CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 
 
 --
@@ -35,7 +33,7 @@ CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 -- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: 
 --
 
-COMMENT ON EXTENSION postgis IS 'PostGIS geometry and geography spatial types and functions';
+-- COMMENT ON EXTENSION postgis IS 'PostGIS geometry and geography spatial types and functions';
 
 
 SET default_tablespace = '';
@@ -110,7 +108,7 @@ CREATE TABLE public.information (
     enumerator_name text,
     village_name text,
     district text,
-    gps_coordinates public.geometry(Point,4326),
+    gps_coordinates text,
     respondent_code text
 );
 
@@ -824,6 +822,3 @@ ALTER TABLE ONLY public.socioeconomic_development_indicators
 --
 -- PostgreSQL database dump complete
 --
-
-\unrestrict hUjsPlyjZFarwoErOdAf604DPbGROp6EiG4YZzdjg3Z0GnXA4gvRPWSZjTaZyOE
-

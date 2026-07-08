@@ -137,9 +137,7 @@ app.post("/api/surveys", async (req, res) => {
         respondent_code
       )
       VALUES (
-        $1, $2, $3, $4, $5,
-        ST_SetSRID(ST_MakePoint($6, $7), 4326),
-        $8
+        $1, $2, $3, $4, $5, $6, $7
       )
       `,
       [
@@ -148,8 +146,7 @@ app.post("/api/surveys", async (req, res) => {
         emptyToNull(basic.enumerator_name),
         emptyToNull(basic.village_name),
         emptyToNull(basic.district),
-        longitude,
-        latitude,
+        `${longitude},${latitude}`,
         emptyToNull(basic.respondent_code)
       ]
     );
