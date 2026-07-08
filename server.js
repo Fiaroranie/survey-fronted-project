@@ -31,6 +31,24 @@ const pool = new Pool({
   database: process.env.PGDATABASE || "Asian_elephant"
 });
 
+function emptyToNull(value) {
+  return value === "" || value === undefined ? null : value;
+}
+
+function toNumberOrNull(value) {
+  if (value === "" || value === undefined || value === null) {
+    return null;
+  }
+
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function toIntegerOrNull(value) {
+  const number = toNumberOrNull(value);
+  return number === null ? null : Math.trunc(number);
+}
+
 app.get("/", (req, res) => {
   res.send("Survey-ae is running");
 });
@@ -71,18 +89,35 @@ app.post("/api/surveys", async (req, res) => {
       section_h = {},
       section_j = {}
     } = req.body;
+    const surveyId = emptyToNull(basic.survey_id);
 
-    if (!basic.survey_id || !basic.survey_date || !basic.enumerator_name || !basic.village_name || !basic.district) {
+    if (!surveyId || !basic.survey_date || !basic.enumerator_name || !basic.village_name || !basic.district) {
       return res.status(400).json({
         success: false,
         message: "Missing required survey information"
       });
     }
 
-    if (basic.longitude === null || basic.longitude === undefined || basic.latitude === null || basic.latitude === undefined) {
+    const longitude = toNumberOrNull(basic.longitude);
+    const latitude = toNumberOrNull(basic.latitude);
+
+    if (longitude === null || latitude === null) {
       return res.status(400).json({
         success: false,
         message: "Longitude and latitude are required"
+      });
+    }
+
+    const existingSurvey = await client.query(
+      "SELECT 1 FROM information WHERE survey_id = $1 LIMIT 1",
+      [surveyId]
+    );
+
+    if (existingSurvey.rowCount > 0) {
+      return res.status(409).json({
+        success: false,
+        message: "Survey ID already exists",
+        survey_id: surveyId
       });
     }
 
@@ -106,14 +141,14 @@ app.post("/api/surveys", async (req, res) => {
       )
       `,
       [
-        basic.survey_id,
-        basic.survey_date,
-        basic.enumerator_name,
-        basic.village_name,
-        basic.district,
-        basic.longitude,
-        basic.latitude,
-        basic.respondent_code
+        surveyId,
+        emptyToNull(basic.survey_date),
+        emptyToNull(basic.enumerator_name),
+        emptyToNull(basic.village_name),
+        emptyToNull(basic.district),
+        longitude,
+        latitude,
+        emptyToNull(basic.respondent_code)
       ]
     );
 
@@ -133,15 +168,15 @@ app.post("/api/surveys", async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `,
       [
-        basic.survey_id,
-        section_a.gender,
-        section_a.age,
-        section_a.marital_status,
-        section_a.education_level,
-        section_a.occupation_main,
-        section_a.occupation_other,
-        section_a.household_size,
-        section_a.income_earners
+        surveyId,
+        emptyToNull(section_a.gender),
+        toIntegerOrNull(section_a.age),
+        emptyToNull(section_a.marital_status),
+        emptyToNull(section_a.education_level),
+        emptyToNull(section_a.occupation_main),
+        emptyToNull(section_a.occupation_other),
+        toIntegerOrNull(section_a.household_size),
+        toIntegerOrNull(section_a.income_earners)
       ]
     );
 
@@ -158,12 +193,12 @@ app.post("/api/surveys", async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, $6)
       `,
       [
-        basic.survey_id,
-        section_b.monthly_income_group,
-        section_b.main_income_source,
-        section_b.main_income_source_other,
-        section_b.owns_agricultural_land,
-        section_b.land_area_ha
+        surveyId,
+        emptyToNull(section_b.monthly_income_group),
+        emptyToNull(section_b.main_income_source),
+        emptyToNull(section_b.main_income_source_other),
+        emptyToNull(section_b.owns_agricultural_land),
+        toNumberOrNull(section_b.land_area_ha)
       ]
     );
 
@@ -178,19 +213,20 @@ app.post("/api/surveys", async (req, res) => {
         VALUES ($1, $2, $3)
         `,
         [
-          basic.survey_id,
+          surveyId,
           landUseType,
           landUseType === "Other" ? section_b.land_use_type_other : null
         ]
       );
     }
 
+    const livestock = section_b.livestock || {};
     const livestockMap = [
-      ["Cattle", section_b.livestock.cattle],
-      ["Buffalo", section_b.livestock.buffalo],
-      ["Goat", section_b.livestock.goat],
-      ["Sheep", section_b.livestock.sheep],
-      ["Others", section_b.livestock.others]
+      ["Cattle", livestock.cattle],
+      ["Buffalo", livestock.buffalo],
+      ["Goat", livestock.goat],
+      ["Sheep", livestock.sheep],
+      ["Others", livestock.others]
     ];
 
     for (const [livestockType, livestockNumber] of livestockMap) {
@@ -204,7 +240,7 @@ app.post("/api/surveys", async (req, res) => {
           )
           VALUES ($1, $2, $3)
           `,
-          [basic.survey_id, livestockType, livestockNumber]
+          [surveyId, livestockType, toIntegerOrNull(livestockNumber)]
         );
       }
     }
@@ -220,10 +256,10 @@ app.post("/api/surveys", async (req, res) => {
       VALUES ($1, $2, $3, $4)
       `,
       [
-        basic.survey_id,
-        section_c.land_use_change_level,
-        section_c.distance_home_forest_group,
-        section_c.distance_farmland_forest_km
+        surveyId,
+        emptyToNull(section_c.land_use_change_level),
+        emptyToNull(section_c.distance_home_forest_group),
+        toNumberOrNull(section_c.distance_farmland_forest_km)
       ]
     );
 
@@ -238,7 +274,7 @@ app.post("/api/surveys", async (req, res) => {
         VALUES ($1, $2, $3)
         `,
         [
-          basic.survey_id,
+          surveyId,
           changeType,
           changeType === "Other" ? section_c.change_type_other : null
         ]
@@ -254,7 +290,7 @@ app.post("/api/surveys", async (req, res) => {
         )
         VALUES ($1, $2)
         `,
-        [basic.survey_id, waterSource]
+        [surveyId, waterSource]
       );
     }
 
@@ -274,15 +310,15 @@ app.post("/api/surveys", async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `,
       [
-        basic.survey_id,
-        section_d.seen_elephants,
-        section_d.elephant_frequency,
-        section_d.elephant_common_distance_km,
-        section_d.elephant_season,
-        section_d.herd_size_group,
-        section_d.elephant_number_change,
-        section_d.elephant_route_change,
-        section_d.elephant_route_change_explanation
+        surveyId,
+        emptyToNull(section_d.seen_elephants),
+        emptyToNull(section_d.elephant_frequency),
+        toNumberOrNull(section_d.elephant_common_distance_km),
+        emptyToNull(section_d.elephant_season),
+        emptyToNull(section_d.herd_size_group),
+        emptyToNull(section_d.elephant_number_change),
+        emptyToNull(section_d.elephant_route_change),
+        emptyToNull(section_d.elephant_route_change_explanation)
       ]
     );
 
@@ -297,7 +333,7 @@ app.post("/api/surveys", async (req, res) => {
         VALUES ($1, $2, $3)
         `,
         [
-          basic.survey_id,
+          surveyId,
           location,
           location === "Other" ? section_d.elephant_common_location_other : null
         ]
@@ -318,13 +354,13 @@ app.post("/api/surveys", async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       `,
       [
-        basic.survey_id,
-        section_e.crop_damage,
-        section_e.crop_damage_frequency,
-        section_e.economic_loss_group,
-        section_e.property_damage,
-        section_e.human_injury,
-        section_e.human_death
+        surveyId,
+        emptyToNull(section_e.crop_damage),
+        emptyToNull(section_e.crop_damage_frequency),
+        emptyToNull(section_e.economic_loss_group),
+        emptyToNull(section_e.property_damage),
+        emptyToNull(section_e.human_injury),
+        emptyToNull(section_e.human_death)
       ]
     );
 
@@ -339,7 +375,7 @@ app.post("/api/surveys", async (req, res) => {
         VALUES ($1, $2, $3)
         `,
         [
-          basic.survey_id,
+          surveyId,
           cropType,
           cropType === "Other" ? section_e.crop_type_other : null
         ]
@@ -357,7 +393,7 @@ app.post("/api/surveys", async (req, res) => {
         VALUES ($1, $2, $3)
         `,
         [
-          basic.survey_id,
+          surveyId,
           method,
           method === "Other" ? section_e.deterrence_method_other : null
         ]
@@ -380,15 +416,15 @@ app.post("/api/surveys", async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `,
       [
-        basic.survey_id,
-        section_f.elephants_important_ecosystem,
-        section_f.elephant_population_protected,
-        section_f.government_programs_effective,
-        section_f.conflict_increasing,
-        section_f.communities_benefit_conservation,
-        section_f.habitats_preserved,
-        section_f.development_affects_distribution,
-        section_f.agricultural_expansion_reduces_habitat
+        surveyId,
+        emptyToNull(section_f.elephants_important_ecosystem),
+        emptyToNull(section_f.elephant_population_protected),
+        emptyToNull(section_f.government_programs_effective),
+        emptyToNull(section_f.conflict_increasing),
+        emptyToNull(section_f.communities_benefit_conservation),
+        emptyToNull(section_f.habitats_preserved),
+        emptyToNull(section_f.development_affects_distribution),
+        emptyToNull(section_f.agricultural_expansion_reduces_habitat)
       ]
     );
 
@@ -405,12 +441,12 @@ app.post("/api/surveys", async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, $6)
       `,
       [
-        basic.survey_id,
-        section_g.road_infrastructure_change,
-        section_g.agricultural_expansion_change,
-        section_g.population_density_change,
-        section_g.new_business_nearby,
-        section_g.household_income_change
+        surveyId,
+        emptyToNull(section_g.road_infrastructure_change),
+        emptyToNull(section_g.agricultural_expansion_change),
+        emptyToNull(section_g.population_density_change),
+        emptyToNull(section_g.new_business_nearby),
+        emptyToNull(section_g.household_income_change)
       ]
     );
 
@@ -427,12 +463,12 @@ app.post("/api/surveys", async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, $6)
       `,
       [
-        basic.survey_id,
-        section_h.knows_traditional_routes,
-        section_h.traditional_route_description,
-        section_h.elders_know_routes,
-        section_h.community_conservation,
-        section_h.community_conservation_description
+        surveyId,
+        emptyToNull(section_h.knows_traditional_routes),
+        emptyToNull(section_h.traditional_route_description),
+        emptyToNull(section_h.elders_know_routes),
+        emptyToNull(section_h.community_conservation),
+        emptyToNull(section_h.community_conservation_description)
       ]
     );
 
@@ -448,11 +484,11 @@ app.post("/api/surveys", async (req, res) => {
       VALUES ($1, $2, $3, $4, $5)
       `,
       [
-        basic.survey_id,
-        section_j.reason_elephants_occur,
-        section_j.development_effect_on_movements,
-        section_j.conflict_reduction_measures,
-        section_j.additional_comments
+        surveyId,
+        emptyToNull(section_j.reason_elephants_occur),
+        emptyToNull(section_j.development_effect_on_movements),
+        emptyToNull(section_j.conflict_reduction_measures),
+        emptyToNull(section_j.additional_comments)
       ]
     );
 
@@ -461,7 +497,7 @@ app.post("/api/surveys", async (req, res) => {
     res.json({
       success: true,
       message: "Survey saved successfully",
-      survey_id: basic.survey_id
+      survey_id: surveyId
     });
   } catch (err) {
     if (client) {
