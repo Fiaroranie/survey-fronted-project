@@ -10,6 +10,22 @@
     </div>
     <div class="ambient-track track-left"></div>
     <div class="ambient-track track-right"></div>
+    <div class="side-scan side-scan-left"></div>
+    <div class="side-scan side-scan-right"></div>
+    <div class="side-orbit side-orbit-left">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="side-orbit side-orbit-right">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <span class="drift-leaf leaf-one"></span>
+    <span class="drift-leaf leaf-two"></span>
+    <span class="drift-leaf leaf-three"></span>
+    <span class="drift-leaf leaf-four"></span>
   </div>
 
   <FloatingBubbles />
@@ -395,6 +411,159 @@ onBeforeUnmount(() => {
   right: max(-74px, calc((100vw - 1040px) / 2 - 286px));
   top: 240px;
   transform: rotate(16deg);
+}
+
+.side-scan {
+  position: absolute;
+  top: 120px;
+  width: 160px;
+  height: min(760px, calc(100vh - 160px));
+  border-radius: 999px;
+  opacity: 0.58;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.4), transparent),
+    repeating-linear-gradient(
+      180deg,
+      rgba(35, 111, 97, 0.1) 0 1px,
+      transparent 1px 46px
+    );
+  mask-image: linear-gradient(180deg, transparent, black 12%, black 88%, transparent);
+}
+
+.side-scan::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  height: 86px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, transparent, rgba(45, 127, 249, 0.28), transparent);
+  box-shadow: 0 0 36px rgba(45, 127, 249, 0.2);
+  animation: scan-sweep 7.8s ease-in-out infinite;
+}
+
+.side-scan-left {
+  left: max(10px, calc((100vw - 1040px) / 2 - 250px));
+}
+
+.side-scan-right {
+  right: max(10px, calc((100vw - 1040px) / 2 - 252px));
+  transform: scaleX(-1);
+}
+
+.side-orbit {
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  border: 1px solid rgba(35, 111, 97, 0.14);
+  border-radius: 50%;
+  opacity: 0.76;
+  animation: orbit-breathe 9s ease-in-out infinite;
+}
+
+.side-orbit::before,
+.side-orbit::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.side-orbit::before {
+  inset: 34px;
+  border: 1px dashed rgba(45, 127, 249, 0.2);
+}
+
+.side-orbit::after {
+  inset: 68px;
+  border: 1px solid rgba(142, 232, 189, 0.2);
+}
+
+.side-orbit span {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 7px rgba(142, 232, 189, 0.18),
+    0 0 26px rgba(45, 127, 249, 0.24);
+  animation: orbit-dot 8s linear infinite;
+}
+
+.side-orbit span:nth-child(1) {
+  top: 16px;
+  left: 92px;
+}
+
+.side-orbit span:nth-child(2) {
+  right: 20px;
+  top: 112px;
+  animation-delay: -2.5s;
+}
+
+.side-orbit span:nth-child(3) {
+  left: 38px;
+  bottom: 28px;
+  animation-delay: -5s;
+}
+
+.side-orbit-left {
+  left: max(-74px, calc((100vw - 1040px) / 2 - 274px));
+  top: 820px;
+}
+
+.side-orbit-right {
+  right: max(-76px, calc((100vw - 1040px) / 2 - 276px));
+  top: 360px;
+  animation-delay: -3.5s;
+}
+
+.drift-leaf {
+  position: absolute;
+  width: 28px;
+  height: 15px;
+  border-radius: 100% 0 100% 0;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(142, 232, 189, 0.62)),
+    #a6e7bd;
+  box-shadow: 0 12px 24px rgba(35, 111, 97, 0.12);
+  opacity: 0.62;
+  transform-origin: 70% 60%;
+  animation: leaf-drift 11s ease-in-out infinite;
+}
+
+.drift-leaf::after {
+  content: "";
+  position: absolute;
+  inset: 50% 3px auto 4px;
+  height: 1px;
+  background: rgba(35, 111, 97, 0.34);
+  transform: rotate(-16deg);
+}
+
+.leaf-one {
+  left: max(28px, calc((100vw - 1040px) / 2 - 188px));
+  top: 260px;
+}
+
+.leaf-two {
+  right: max(32px, calc((100vw - 1040px) / 2 - 196px));
+  top: 520px;
+  animation-delay: -2.8s;
+}
+
+.leaf-three {
+  left: max(54px, calc((100vw - 1040px) / 2 - 236px));
+  top: 760px;
+  animation-delay: -5.2s;
+}
+
+.leaf-four {
+  right: max(56px, calc((100vw - 1040px) / 2 - 232px));
+  top: 940px;
+  animation-delay: -7.4s;
 }
 
 .survey-header {
@@ -976,7 +1145,10 @@ textarea {
 
 @media (max-width: 720px) {
   .ambient-panel,
-  .ambient-track {
+  .ambient-track,
+  .side-scan,
+  .side-orbit,
+  .drift-leaf {
     display: none;
   }
 
@@ -1054,6 +1226,62 @@ textarea {
 
   50% {
     transform: translate3d(0, -12px, 0);
+  }
+}
+
+@keyframes scan-sweep {
+  0% {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+
+  18%,
+  82% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(calc(100vh - 80px));
+    opacity: 0;
+  }
+}
+
+@keyframes orbit-breathe {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+
+  50% {
+    transform: scale(1.06) rotate(5deg);
+  }
+}
+
+@keyframes orbit-dot {
+  0%,
+  100% {
+    transform: scale(0.86);
+    opacity: 0.62;
+  }
+
+  50% {
+    transform: scale(1.28);
+    opacity: 1;
+  }
+}
+
+@keyframes leaf-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-12deg);
+  }
+
+  35% {
+    transform: translate3d(18px, -24px, 0) rotate(10deg);
+  }
+
+  70% {
+    transform: translate3d(-12px, -42px, 0) rotate(-4deg);
   }
 }
 
