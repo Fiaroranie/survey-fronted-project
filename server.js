@@ -110,22 +110,9 @@ app.post("/api/surveys", async (req, res) => {
       });
     }
 
-    const existingSurvey = await client.query(
-      "SELECT 1 FROM information WHERE survey_id = $1 LIMIT 1",
-      [surveyId]
-    );
-
-    if (existingSurvey.rowCount > 0) {
-      return res.status(409).json({
-        success: false,
-        message: "Survey ID already exists",
-        survey_id: surveyId
-      });
-    }
-
     await client.query("BEGIN");
 
-    await client.query(
+    const informationInsert = await client.query(
       `
       INSERT INTO information (
         survey_id,
@@ -139,6 +126,8 @@ app.post("/api/surveys", async (req, res) => {
       VALUES (
         $1, $2, $3, $4, $5, $6, $7
       )
+      ON CONFLICT (survey_id) DO NOTHING
+      RETURNING survey_id
       `,
       [
         surveyId,
@@ -150,6 +139,15 @@ app.post("/api/surveys", async (req, res) => {
         emptyToNull(basic.respondent_code)
       ]
     );
+
+    if (informationInsert.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return res.status(409).json({
+        success: false,
+        message: "Survey ID already exists",
+        survey_id: surveyId
+      });
+    }
 
     await client.query(
       `
@@ -505,8 +503,7 @@ app.post("/api/surveys", async (req, res) => {
     console.error("Failed to save survey:", err);
     res.status(500).json({
       success: false,
-      message: "Failed to save survey",
-      error: err.message
+      message: "Failed to save survey"
     });
   } finally {
     client?.release();
