@@ -30,6 +30,20 @@
 
   <FloatingBubbles />
 
+  <div class="meteor-layer" aria-hidden="true">
+    <span
+      v-for="meteor in meteors"
+      :key="meteor.id"
+      class="cursor-meteor"
+      :style="{
+        left: `${meteor.x}px`,
+        top: `${meteor.y}px`,
+        transform: `translate(-50%, -50%) rotate(${meteor.angle}deg)`,
+        '--meteor-hue': meteor.hue
+      }"
+    ></span>
+  </div>
+
   <form class="page" @submit.prevent="handleSubmit">
     <header
       class="survey-header"
@@ -141,7 +155,11 @@ import FloatingBubbles from "./components/ui/FloatingBubbles.vue";
 const form = reactive(createSurveyForm());
 const isSubmitting = ref(false);
 const activeSection = ref(0);
+const meteors = ref([]);
 let sectionObserver = null;
+let lastMeteorAt = 0;
+let nextMeteorId = 1;
+const meteorTimeouts = new Set();
 
 const sectionLabels = [
   "Enumerator",
@@ -183,6 +201,36 @@ function resetSceneMove() {
     "--scene-y": "0px",
     "--scene-tilt": "0deg"
   };
+}
+
+function handlePointerMeteor(event) {
+  if (event.pointerType && event.pointerType !== "mouse") return;
+
+  const now = window.performance.now();
+  if (now - lastMeteorAt < 34) return;
+  lastMeteorAt = now;
+
+  const id = nextMeteorId;
+  nextMeteorId += 1;
+
+  meteors.value.push({
+    id,
+    x: event.clientX,
+    y: event.clientY,
+    angle: -24 + Math.random() * 18,
+    hue: `${174 + Math.round(Math.random() * 40)}`
+  });
+
+  if (meteors.value.length > 16) {
+    meteors.value = meteors.value.slice(-16);
+  }
+
+  const timeout = window.setTimeout(() => {
+    meteors.value = meteors.value.filter((meteor) => meteor.id !== id);
+    meteorTimeouts.delete(timeout);
+  }, 620);
+
+  meteorTimeouts.add(timeout);
 }
 
 function getSurveySections() {
@@ -247,10 +295,14 @@ onMounted(() => {
 
   getSurveySections().forEach((section) => sectionObserver.observe(section));
 
+  window.addEventListener("pointermove", handlePointerMeteor, { passive: true });
 });
 
 onBeforeUnmount(() => {
   sectionObserver?.disconnect();
+  window.removeEventListener("pointermove", handlePointerMeteor);
+  meteorTimeouts.forEach((timeout) => window.clearTimeout(timeout));
+  meteorTimeouts.clear();
 });
 </script>
 
@@ -294,6 +346,54 @@ onBeforeUnmount(() => {
     repeating-linear-gradient(35deg, rgba(255, 255, 255, 0.4) 0 1px, transparent 1px 28px),
     repeating-radial-gradient(circle at 18% 52%, rgba(35, 111, 97, 0.22) 0 1px, transparent 1px 34px);
   mask-image: linear-gradient(180deg, transparent, black 220px, black calc(100% - 120px), transparent);
+}
+
+.meteor-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cursor-meteor {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  opacity: 0;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 1) 0 22%, hsla(var(--meteor-hue), 84%, 72%, 0.92) 24% 58%, transparent 70%);
+  box-shadow:
+    0 0 14px hsla(var(--meteor-hue), 92%, 68%, 0.72),
+    0 0 28px rgba(255, 255, 255, 0.28);
+  animation: cursor-meteor-flight 0.62s ease-out forwards;
+}
+
+.cursor-meteor::before,
+.cursor-meteor::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  height: 2px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  transform-origin: right center;
+  pointer-events: none;
+}
+
+.cursor-meteor::before {
+  width: 76px;
+  background: linear-gradient(90deg, transparent, hsla(var(--meteor-hue), 92%, 70%, 0.72), rgba(255, 255, 255, 0.92));
+  filter: blur(0.2px);
+}
+
+.cursor-meteor::after {
+  width: 38px;
+  height: 7px;
+  background: linear-gradient(90deg, transparent, hsla(var(--meteor-hue), 92%, 72%, 0.28), rgba(255, 255, 255, 0.5));
+  filter: blur(6px);
 }
 
 .ambient-shell {
@@ -1144,6 +1244,10 @@ textarea {
 }
 
 @media (max-width: 720px) {
+  .meteor-layer {
+    display: none;
+  }
+
   .ambient-panel,
   .ambient-track,
   .side-scan,
@@ -1226,6 +1330,25 @@ textarea {
 
   50% {
     transform: translate3d(0, -12px, 0);
+  }
+}
+
+@keyframes cursor-meteor-flight {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+    scale: 0.72;
+  }
+
+  18% {
+    opacity: 0.95;
+  }
+
+  100% {
+    opacity: 0;
+    translate: 34px -18px;
+    scale: 0.18;
+    filter: blur(2px);
   }
 }
 
