@@ -35,6 +35,16 @@ export function createSurveyForm() {
                 buffalo: null,
                 goat: null,
                 sheep: null,
+                pig: null,
+                chicken: null,
+                duck: null,
+                goose: null,
+                horse: null,
+                mule: null,
+                donkey: null,
+                yak: null,
+                rabbit: null,
+                bee_colony: null,
                 others: null
             }
         },

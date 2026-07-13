@@ -3,7 +3,8 @@ import {
   yesNoOptions,
   incomeOptions,
   incomeSourceOptions,
-  landUseTypeOptions
+  landUseTypeOptions,
+  livestockOptions
 } from "../../data/surveyOptions";
 
 const model = defineModel();
@@ -73,20 +74,10 @@ const model = defineModel();
     <label>B5. Livestock Ownership</label>
 
     <div class="grid-2">
-      <label>Cattle</label>
-      <input type="number" min="0" v-model.number="model.livestock.cattle" />
-
-      <label>Buffalo</label>
-      <input type="number" min="0" v-model.number="model.livestock.buffalo" />
-
-      <label>Goat</label>
-      <input type="number" min="0" v-model.number="model.livestock.goat" />
-
-      <label>Sheep</label>
-      <input type="number" min="0" v-model.number="model.livestock.sheep" />
-
-      <label>Others</label>
-      <input type="number" min="0" v-model.number="model.livestock.others" />
+      <template v-for="item in livestockOptions" :key="item.key">
+        <label>{{ item.label }}</label>
+        <input type="number" min="0" v-model.number="model.livestock[item.key]" />
+      </template>
     </div>
   </section>
 </template>

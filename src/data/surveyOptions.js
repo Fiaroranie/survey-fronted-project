@@ -38,7 +38,9 @@ export const incomeOptions = [
     "CNY 1,000-2,999",
     "CNY 3,000-4,999",
     "CNY 5,000-9,999",
-    "CNY 10,000 or above"
+    "CNY 10,000-14,999",
+    "CNY 15,000-19,999",
+    "CNY 20,000 or above"
 ];
 
 export const incomeSourceOptions = [
@@ -59,6 +61,24 @@ export const landUseTypeOptions = [
     "Forest land",
     "Grazing land",
     "Other"
+];
+
+export const livestockOptions = [
+    { key: "cattle", label: "Cattle" },
+    { key: "buffalo", label: "Buffalo" },
+    { key: "goat", label: "Goat" },
+    { key: "sheep", label: "Sheep" },
+    { key: "pig", label: "Pig" },
+    { key: "chicken", label: "Chicken" },
+    { key: "duck", label: "Duck" },
+    { key: "goose", label: "Goose" },
+    { key: "horse", label: "Horse" },
+    { key: "mule", label: "Mule" },
+    { key: "donkey", label: "Donkey" },
+    { key: "yak", label: "Yak" },
+    { key: "rabbit", label: "Rabbit" },
+    { key: "bee_colony", label: "Bee colony" },
+    { key: "others", label: "Others" }
 ];
 
 export const landUseChangeLevelOptions = [

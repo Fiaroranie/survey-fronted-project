@@ -223,6 +223,16 @@ app.post("/api/surveys", async (req, res) => {
       ["Buffalo", livestock.buffalo],
       ["Goat", livestock.goat],
       ["Sheep", livestock.sheep],
+      ["Pig", livestock.pig],
+      ["Chicken", livestock.chicken],
+      ["Duck", livestock.duck],
+      ["Goose", livestock.goose],
+      ["Horse", livestock.horse],
+      ["Mule", livestock.mule],
+      ["Donkey", livestock.donkey],
+      ["Yak", livestock.yak],
+      ["Rabbit", livestock.rabbit],
+      ["Bee colony", livestock.bee_colony],
       ["Others", livestock.others]
     ];
 
