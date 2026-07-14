@@ -194,7 +194,10 @@ function resetSceneMove() {
 function handlePointerMeteor(event) {
   if (event.pointerType && event.pointerType !== "mouse") return;
   if (!meteorLayer.value) return;
-  if (event.target.closest("input, select, textarea, button, label, .radio-row, .checkbox-row")) return;
+  if (event.target.closest("input, select, textarea, button, label, .radio-row, .checkbox-row")) {
+    lastPointerPoint = null;
+    return;
+  }
 
   const now = window.performance.now();
   if (now - lastMeteorAt < 42) return;
@@ -363,11 +366,11 @@ onBeforeUnmount(() => {
   border-radius: 999px 16px 16px 999px;
   opacity: 0;
   background:
-    radial-gradient(circle at 92% 50%, rgba(255, 255, 255, 0.96) 0 8%, rgba(139, 236, 194, 0.82) 9% 20%, transparent 28%),
-    linear-gradient(90deg, transparent 0%, rgba(51, 132, 218, 0.1) 24%, rgba(109, 221, 182, 0.42) 58%, rgba(255, 255, 255, 0.84) 100%);
+    radial-gradient(circle at 92% 50%, rgba(255, 255, 255, 0.96) 0 8%, rgba(255, 215, 155, 0.86) 9% 20%, transparent 28%),
+    linear-gradient(90deg, transparent 0%, rgba(159, 28, 28, 0.08) 22%, rgba(255, 80, 48, 0.46) 58%, rgba(255, 238, 204, 0.9) 100%);
   box-shadow:
-    0 0 16px rgba(109, 221, 182, 0.44),
-    0 0 30px rgba(51, 132, 218, 0.18);
+    0 0 16px rgba(255, 80, 48, 0.46),
+    0 0 30px rgba(255, 153, 64, 0.22);
   filter: blur(0.1px);
   animation: cursor-flame-fade 0.42s ease-out forwards;
 }
@@ -385,15 +388,15 @@ onBeforeUnmount(() => {
   width: 13px;
   height: 13px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 246, 224, 0.95);
   transform: translate(28%, -50%);
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.72);
+  box-shadow: 0 0 14px rgba(255, 210, 132, 0.78);
 }
 
 .cursor-flame::after {
   inset: -8px 8px -8px -16px;
   border-radius: inherit;
-  background: linear-gradient(90deg, transparent, rgba(109, 221, 182, 0.28), rgba(255, 255, 255, 0.28));
+  background: linear-gradient(90deg, transparent, rgba(255, 59, 48, 0.28), rgba(255, 214, 160, 0.32));
   filter: blur(8px);
 }
 
@@ -1061,7 +1064,7 @@ section:nth-of-type(3n) {
 section:hover {
   background: rgba(255, 255, 255, 0.76);
   box-shadow: 0 20px 52px rgba(21, 35, 55, 0.13);
-  transform: translateY(-1px);
+  transform: none;
 }
 
 section::before {
@@ -1158,7 +1161,7 @@ textarea {
 .checkbox-row:hover {
   border-color: #9bc5b8;
   background: #f0f8f5;
-  transform: translateX(2px);
+  transform: none;
 }
 
 .radio-row input,
