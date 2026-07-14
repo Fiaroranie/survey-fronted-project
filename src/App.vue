@@ -1049,8 +1049,7 @@ section {
   backdrop-filter: blur(14px) saturate(1.15);
   transition:
     background-color 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.18s ease;
+    box-shadow 0.18s ease;
 }
 
 section:nth-of-type(2n) {
@@ -1145,7 +1144,7 @@ textarea {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 38px;
+  min-height: 40px;
   margin: 7px 0;
   padding: 8px 10px;
   border: 1px solid #e3ebf3;
@@ -1153,8 +1152,8 @@ textarea {
   background: #f7faf8;
   transition:
     border-color 0.16s ease,
-    background-color 0.16s ease,
-    transform 0.16s ease;
+    background-color 0.16s ease;
+  contain: layout paint;
 }
 
 .radio-row:hover,
@@ -1166,9 +1165,30 @@ textarea {
 
 .radio-row input,
 .checkbox-row input {
-  width: auto;
-  min-height: auto;
+  flex: 0 0 16px;
+  width: 16px;
+  min-width: 16px;
+  max-width: 16px;
+  height: 16px;
+  min-height: 16px;
+  max-height: 16px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
   accent-color: #2d7ff9;
+  transition: none;
+  transform: none;
+}
+
+.radio-row input:focus,
+.checkbox-row input:focus {
+  outline: 2px solid rgba(45, 127, 249, 0.32);
+  outline-offset: 2px;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
 }
 
 .radio-row span,
