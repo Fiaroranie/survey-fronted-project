@@ -30,19 +30,7 @@
 
   <FloatingBubbles />
 
-  <div class="meteor-layer" aria-hidden="true">
-    <span
-      v-for="meteor in meteors"
-      :key="meteor.id"
-      class="cursor-meteor"
-      :style="{
-        left: `${meteor.x}px`,
-        top: `${meteor.y}px`,
-        transform: `translate(-50%, -50%) rotate(${meteor.angle}deg)`,
-        '--meteor-hue': meteor.hue
-      }"
-    ></span>
-  </div>
+  <div ref="meteorLayer" class="meteor-layer" aria-hidden="true"></div>
 
   <form class="page" @submit.prevent="handleSubmit">
     <header
@@ -155,10 +143,10 @@ import FloatingBubbles from "./components/ui/FloatingBubbles.vue";
 const form = reactive(createSurveyForm());
 const isSubmitting = ref(false);
 const activeSection = ref(0);
-const meteors = ref([]);
+const meteorLayer = ref(null);
 let sectionObserver = null;
 let lastMeteorAt = 0;
-let nextMeteorId = 1;
+let lastPointerPoint = null;
 const meteorTimeouts = new Set();
 
 const sectionLabels = [
@@ -205,30 +193,42 @@ function resetSceneMove() {
 
 function handlePointerMeteor(event) {
   if (event.pointerType && event.pointerType !== "mouse") return;
+  if (!meteorLayer.value) return;
+  if (event.target.closest("input, select, textarea, button, label, .radio-row, .checkbox-row")) return;
 
   const now = window.performance.now();
-  if (now - lastMeteorAt < 34) return;
+  if (now - lastMeteorAt < 42) return;
+
+  const currentPoint = {
+    x: event.clientX,
+    y: event.clientY
+  };
+  const previousPoint = lastPointerPoint || currentPoint;
+  const deltaX = currentPoint.x - previousPoint.x;
+  const deltaY = currentPoint.y - previousPoint.y;
+  const distance = Math.hypot(deltaX, deltaY);
+
+  lastPointerPoint = currentPoint;
+  if (distance < 4) return;
+
   lastMeteorAt = now;
 
-  const id = nextMeteorId;
-  nextMeteorId += 1;
+  const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+  const offsetX = (deltaX / distance) * 10;
+  const offsetY = (deltaY / distance) * 10;
+  const flame = document.createElement("span");
 
-  meteors.value.push({
-    id,
-    x: event.clientX,
-    y: event.clientY,
-    angle: -24 + Math.random() * 18,
-    hue: `${174 + Math.round(Math.random() * 40)}`
-  });
-
-  if (meteors.value.length > 16) {
-    meteors.value = meteors.value.slice(-16);
-  }
+  flame.className = "cursor-flame";
+  flame.style.left = `${currentPoint.x - offsetX}px`;
+  flame.style.top = `${currentPoint.y - offsetY}px`;
+  flame.style.transform = `translate(-100%, -50%) rotate(${angle}deg)`;
+  flame.style.setProperty("--flame-scale", `${0.72 + Math.min(distance / 80, 0.55)}`);
+  meteorLayer.value.appendChild(flame);
 
   const timeout = window.setTimeout(() => {
-    meteors.value = meteors.value.filter((meteor) => meteor.id !== id);
+    flame.remove();
     meteorTimeouts.delete(timeout);
-  }, 620);
+  }, 420);
 
   meteorTimeouts.add(timeout);
 }
@@ -356,44 +356,45 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-.cursor-meteor {
+.cursor-flame {
   position: absolute;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
+  width: 58px;
+  height: 16px;
+  border-radius: 999px 16px 16px 999px;
   opacity: 0;
   background:
-    radial-gradient(circle, rgba(255, 255, 255, 1) 0 22%, hsla(var(--meteor-hue), 84%, 72%, 0.92) 24% 58%, transparent 70%);
+    radial-gradient(circle at 92% 50%, rgba(255, 255, 255, 0.96) 0 8%, rgba(139, 236, 194, 0.82) 9% 20%, transparent 28%),
+    linear-gradient(90deg, transparent 0%, rgba(51, 132, 218, 0.1) 24%, rgba(109, 221, 182, 0.42) 58%, rgba(255, 255, 255, 0.84) 100%);
   box-shadow:
-    0 0 14px hsla(var(--meteor-hue), 92%, 68%, 0.72),
-    0 0 28px rgba(255, 255, 255, 0.28);
-  animation: cursor-meteor-flight 0.62s ease-out forwards;
+    0 0 16px rgba(109, 221, 182, 0.44),
+    0 0 30px rgba(51, 132, 218, 0.18);
+  filter: blur(0.1px);
+  animation: cursor-flame-fade 0.42s ease-out forwards;
 }
 
-.cursor-meteor::before,
-.cursor-meteor::after {
+.cursor-flame::before,
+.cursor-flame::after {
   content: "";
   position: absolute;
-  top: 50%;
-  right: 4px;
-  height: 2px;
-  border-radius: 999px;
-  transform: translateY(-50%);
-  transform-origin: right center;
   pointer-events: none;
 }
 
-.cursor-meteor::before {
-  width: 76px;
-  background: linear-gradient(90deg, transparent, hsla(var(--meteor-hue), 92%, 70%, 0.72), rgba(255, 255, 255, 0.92));
-  filter: blur(0.2px);
+.cursor-flame::before {
+  top: 50%;
+  right: 0;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  transform: translate(28%, -50%);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.72);
 }
 
-.cursor-meteor::after {
-  width: 38px;
-  height: 7px;
-  background: linear-gradient(90deg, transparent, hsla(var(--meteor-hue), 92%, 72%, 0.28), rgba(255, 255, 255, 0.5));
-  filter: blur(6px);
+.cursor-flame::after {
+  inset: -8px 8px -8px -16px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(109, 221, 182, 0.28), rgba(255, 255, 255, 0.28));
+  filter: blur(8px);
 }
 
 .ambient-shell {
@@ -1333,22 +1334,22 @@ textarea {
   }
 }
 
-@keyframes cursor-meteor-flight {
+@keyframes cursor-flame-fade {
   0% {
     opacity: 0;
-    translate: 0 0;
-    scale: 0.72;
+    scale: calc(var(--flame-scale) * 0.74) 0.72;
   }
 
-  18% {
-    opacity: 0.95;
+  20% {
+    opacity: 0.78;
+    scale: var(--flame-scale) 1;
   }
 
   100% {
     opacity: 0;
-    translate: 34px -18px;
-    scale: 0.18;
-    filter: blur(2px);
+    translate: -18px 0;
+    scale: calc(var(--flame-scale) * 0.35) 0.28;
+    filter: blur(4px);
   }
 }
 
