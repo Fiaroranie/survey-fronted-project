@@ -366,13 +366,13 @@ onBeforeUnmount(() => {
   border-radius: 999px 16px 16px 999px;
   opacity: 0;
   background:
-    radial-gradient(circle at 92% 50%, rgba(255, 255, 255, 0.96) 0 8%, rgba(255, 215, 155, 0.86) 9% 20%, transparent 28%),
-    linear-gradient(90deg, transparent 0%, rgba(159, 28, 28, 0.08) 22%, rgba(255, 80, 48, 0.46) 58%, rgba(255, 238, 204, 0.9) 100%);
+    radial-gradient(circle at 92% 50%, rgba(255, 255, 255, 0.96) 0 8%, rgba(190, 232, 255, 0.84) 9% 22%, transparent 32%),
+    linear-gradient(90deg, transparent 0%, rgba(55, 113, 210, 0.06) 20%, rgba(84, 173, 255, 0.32) 58%, rgba(232, 248, 255, 0.82) 100%);
   box-shadow:
-    0 0 16px rgba(255, 80, 48, 0.46),
-    0 0 30px rgba(255, 153, 64, 0.22);
-  filter: blur(0.1px);
-  animation: cursor-flame-fade 0.42s ease-out forwards;
+    0 0 14px rgba(84, 173, 255, 0.34),
+    0 0 34px rgba(98, 203, 255, 0.18);
+  filter: blur(0.35px);
+  animation: cursor-flame-fade 0.5s ease-out forwards;
 }
 
 .cursor-flame::before,
@@ -388,16 +388,16 @@ onBeforeUnmount(() => {
   width: 13px;
   height: 13px;
   border-radius: 999px;
-  background: rgba(255, 246, 224, 0.95);
+  background: rgba(242, 251, 255, 0.92);
   transform: translate(28%, -50%);
-  box-shadow: 0 0 14px rgba(255, 210, 132, 0.78);
+  box-shadow: 0 0 16px rgba(178, 229, 255, 0.62);
 }
 
 .cursor-flame::after {
   inset: -8px 8px -8px -16px;
   border-radius: inherit;
-  background: linear-gradient(90deg, transparent, rgba(255, 59, 48, 0.28), rgba(255, 214, 160, 0.32));
-  filter: blur(8px);
+  background: linear-gradient(90deg, transparent, rgba(84, 173, 255, 0.2), rgba(226, 247, 255, 0.26));
+  filter: blur(10px);
 }
 
 .ambient-shell {
